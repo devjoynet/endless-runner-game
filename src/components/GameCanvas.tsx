@@ -212,7 +212,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         }
       }
 
-      const baseScore = Math.floor(state.frameCount / 10)
+      const baseScore = Math.floor(state.frameCount / 60)
       state.score = activePowerUps.pointMultiplier ? baseScore * 2 : baseScore
       onScoreUpdate(state.score)
 
