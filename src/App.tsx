@@ -9,13 +9,14 @@ import { ShopModal, PowerUp, AVAILABLE_POWERUPS } from './components/ShopModal'
 import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
-type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete'
+type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown' | 'levelCompleteCountdown'
 
 function App() {
   const [gameState, setGameState] = useState<GameState>('start')
   const [currentScore, setCurrentScore] = useState(0)
   const [finalScore, setFinalScore] = useState(0)
   const [currentLevel, setCurrentLevel] = useState(1)
+  const [countdown, setCountdown] = useState(3)
   const [highScore, setHighScore] = useKV<number>('high-score', 0)
   const [totalGames, setTotalGames] = useKV<number>('total-games', 0)
   const [totalScore, setTotalScore] = useKV<number>('total-score', 0)
@@ -77,9 +78,18 @@ function App() {
       pointMultiplier: false,
     })
 
-    setTimeout(() => {
-      setGameState('gameOver')
-    }, 3000)
+    setGameState('gameOverCountdown')
+    setCountdown(3)
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval)
+          setGameState('gameOver')
+          return 3
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   const handleLevelComplete = (completedLevel: number, jumps: number) => {
@@ -112,13 +122,31 @@ function App() {
         pointMultiplier: false,
       })
 
-      setTimeout(() => {
-        setGameState('gameOver')
-      }, 3000)
+      setGameState('gameOverCountdown')
+      setCountdown(3)
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval)
+            setGameState('gameOver')
+            return 3
+          }
+          return prev - 1
+        })
+      }, 1000)
     } else {
-      setTimeout(() => {
-        setGameState('levelComplete')
-      }, 3000)
+      setGameState('levelCompleteCountdown')
+      setCountdown(3)
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval)
+            setGameState('levelComplete')
+            return 3
+          }
+          return prev - 1
+        })
+      }, 1000)
     }
   }
 
@@ -388,6 +416,16 @@ function App() {
           </Card>
         )}
 
+        {gameState === 'gameOverCountdown' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-8xl font-bold text-primary animate-pulse">
+                {countdown}
+              </div>
+            </div>
+          </div>
+        )}
+
         {gameState === 'gameOver' && (
           <Card className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm border-2">
             <CardContent className="text-center space-y-6 pt-6">
@@ -416,6 +454,16 @@ function App() {
               </button>
             </CardContent>
           </Card>
+        )}
+
+        {gameState === 'levelCompleteCountdown' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-8xl font-bold text-primary animate-pulse">
+                {countdown}
+              </div>
+            </div>
+          </div>
         )}
 
         {gameState === 'levelComplete' && (
