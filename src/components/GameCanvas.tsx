@@ -7,6 +7,13 @@ interface Obstacle {
   height: number
 }
 
+export interface ActivePowerUps {
+  lowGravity: boolean
+  slowMotion: boolean
+  shield: boolean
+  pointMultiplier: boolean
+}
+
 interface GameCanvasProps {
   onScoreUpdate: (score: number) => void
   onGameOver: (finalScore: number, jumps: number) => void
@@ -14,20 +21,22 @@ interface GameCanvasProps {
   isPlaying: boolean
   onStart: () => void
   currentLevel: number
+  activePowerUps: ActivePowerUps
+  onShieldUsed: () => void
 }
 
 const GROUND_HEIGHT = 80
 const PLAYER_SIZE = 40
 const PLAYER_X = 100
-const GRAVITY = 0.8
-const JUMP_FORCE = -15
+const BASE_GRAVITY = 0.8
+const BASE_JUMP_FORCE = -15
 const BASE_GAME_SPEED = 6
 const OBSTACLE_WIDTH = 30
 const MIN_OBSTACLE_HEIGHT = 30
 const MAX_OBSTACLE_HEIGHT = 70
 const LEVEL_DURATION = 30
 
-export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel }: GameCanvasProps) {
+export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel, activePowerUps, onShieldUsed }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const gameStateRef = useRef({
@@ -77,7 +86,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       }
 
       if (!state.isJumping && state.canJump && state.playerY >= playerGroundY - 1) {
-        state.playerVelocity = JUMP_FORCE
+        const jumpForce = activePowerUps.lowGravity ? BASE_JUMP_FORCE * 1.3 : BASE_JUMP_FORCE
+        state.playerVelocity = jumpForce
         state.isJumping = true
         state.jumps++
       }
@@ -142,7 +152,10 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
       state.frameCount++
 
-      const currentGameSpeed = BASE_GAME_SPEED * Math.pow(1.05, currentLevel - 1)
+      let currentGameSpeed = BASE_GAME_SPEED * Math.pow(1.05, currentLevel - 1)
+      if (activePowerUps.slowMotion) {
+        currentGameSpeed *= 0.7
+      }
 
       const elapsedSeconds = state.frameCount / 60
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
@@ -150,7 +163,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         return
       }
 
-      state.playerVelocity += GRAVITY
+      const gravity = activePowerUps.lowGravity ? BASE_GRAVITY * 0.6 : BASE_GRAVITY
+      state.playerVelocity += gravity
       state.playerY += state.playerVelocity
 
       if (state.playerY >= playerGroundY) {
@@ -170,12 +184,18 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
       for (const obstacle of state.obstacles) {
         if (checkCollision(obstacle)) {
-          onGameOver(state.score, state.jumps)
-          return
+          if (activePowerUps.shield) {
+            onShieldUsed()
+            state.obstacles = state.obstacles.filter(o => o !== obstacle)
+          } else {
+            onGameOver(state.score, state.jumps)
+            return
+          }
         }
       }
 
-      state.score = Math.floor(state.frameCount / 10)
+      const baseScore = Math.floor(state.frameCount / 10)
+      state.score = activePowerUps.pointMultiplier ? baseScore * 2 : baseScore
       onScoreUpdate(state.score)
 
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
@@ -218,7 +238,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel])
+  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel, activePowerUps, onShieldUsed])
 
   useEffect(() => {
     if (!isPlaying) {
