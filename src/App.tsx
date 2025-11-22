@@ -17,6 +17,8 @@ function App() {
   const [finalScore, setFinalScore] = useState(0)
   const [currentLevel, setCurrentLevel] = useState(1)
   const [countdown, setCountdown] = useState(1)
+  const [pointsEarned, setPointsEarned] = useState(0)
+  const [pointsLost, setPointsLost] = useState(0)
   const [highScore, setHighScore] = useKV<number>('high-score', 0)
   const [totalGames, setTotalGames] = useKV<number>('total-games', 0)
   const [totalScore, setTotalScore] = useKV<number>('total-score', 0)
@@ -56,6 +58,9 @@ function App() {
     const earnedPoints = Math.floor(secondsSurvived)
     const deathPenalty = 10
     const netPoints = earnedPoints - deathPenalty
+    
+    setPointsEarned(earnedPoints)
+    setPointsLost(deathPenalty)
     
     setPoints((current) => Math.max(0, (current ?? 0) + netPoints))
     
@@ -108,6 +113,10 @@ function App() {
     
     if (completedLevel >= 10) {
       const earnedPoints = Math.floor(secondsSurvived)
+      
+      setPointsEarned(earnedPoints)
+      setPointsLost(0)
+      
       setPoints((current) => (current ?? 0) + earnedPoints)
       
       if (earnedPoints > 0) {
@@ -443,6 +452,26 @@ function App() {
                   </Badge>
                 )}
               </div>
+              
+              <div className="flex flex-col gap-2 pt-2">
+                <div className="flex items-center justify-center gap-2 text-lg">
+                  <span className="text-muted-foreground">Points Earned:</span>
+                  <span className="font-bold text-accent">+{pointsEarned}</span>
+                </div>
+                {pointsLost > 0 && (
+                  <div className="flex items-center justify-center gap-2 text-lg">
+                    <span className="text-muted-foreground">Death Penalty:</span>
+                    <span className="font-bold text-destructive">-{pointsLost}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-center gap-2 text-xl pt-2 border-t border-border mt-2">
+                  <span className="text-muted-foreground">Net Points:</span>
+                  <span className={`font-bold ${pointsEarned - pointsLost >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                    {pointsEarned - pointsLost >= 0 ? '+' : ''}{pointsEarned - pointsLost}
+                  </span>
+                </div>
+              </div>
+              
               <button
                 onClick={handleRestart}
                 className="text-primary hover:text-accent transition-colors font-semibold text-xl flex items-center gap-2 mx-auto"
