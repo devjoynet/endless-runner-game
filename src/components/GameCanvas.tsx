@@ -52,6 +52,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     jumps: 0,
     isGameEnded: false,
     inputCooldown: 0,
+    showLevelCompleteHeading: false,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -173,6 +174,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       const elapsedSeconds = state.frameCount / 60
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
         state.isGameEnded = true
+        state.showLevelCompleteHeading = true
         onLevelComplete(currentLevel, state.jumps)
         return
       }
@@ -232,6 +234,19 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         ctx.fill()
       })
 
+      if (state.showLevelCompleteHeading) {
+        ctx.save()
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+        ctx.fillRect(0, 0, dimensions.width, dimensions.height)
+        
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        ctx.font = 'bold 48px Inter, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('Level Complete!', dimensions.width / 2, dimensions.height / 2)
+        ctx.restore()
+      }
+
       animationFrameRef.current = requestAnimationFrame(gameLoop)
     }
 
@@ -269,6 +284,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       state.jumps = 0
       state.isGameEnded = false
       state.inputCooldown = 0
+      state.showLevelCompleteHeading = false
     } else {
       gameStateRef.current.inputCooldown = 30
     }
