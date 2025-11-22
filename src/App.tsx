@@ -62,7 +62,6 @@ function App() {
     }
 
     setFinalScore(score)
-    setGameState('gameOver')
     setHighScore((current) => {
       const currentHigh = current ?? 0
       return score > currentHigh ? score : currentHigh
@@ -77,6 +76,10 @@ function App() {
       shield: false,
       pointMultiplier: false,
     })
+
+    setTimeout(() => {
+      setGameState('gameOver')
+    }, 3000)
   }
 
   const handleLevelComplete = (completedLevel: number, jumps: number) => {
@@ -93,7 +96,6 @@ function App() {
       }
 
       setFinalScore(currentScore)
-      setGameState('gameOver')
       setHighScore((current) => {
         const currentHigh = current ?? 0
         return currentScore > currentHigh ? currentScore : currentHigh
@@ -109,8 +111,14 @@ function App() {
         shield: false,
         pointMultiplier: false,
       })
+
+      setTimeout(() => {
+        setGameState('gameOver')
+      }, 3000)
     } else {
-      setGameState('levelComplete')
+      setTimeout(() => {
+        setGameState('levelComplete')
+      }, 3000)
     }
   }
 
