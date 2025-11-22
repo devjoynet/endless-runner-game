@@ -50,6 +50,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     levelStartTime: 0,
     jumps: 0,
     isGameEnded: false,
+    inputCooldown: 0,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -83,6 +84,10 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     const handleJump = () => {
       if (!isPlaying) {
         onStart()
+        return
+      }
+
+      if (state.inputCooldown > 0) {
         return
       }
 
@@ -152,6 +157,10 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       }
 
       state.frameCount++
+
+      if (state.inputCooldown > 0) {
+        state.inputCooldown--
+      }
 
       let currentGameSpeed = BASE_GAME_SPEED * Math.pow(1.05, currentLevel - 1)
       if (activePowerUps.slowMotion) {
@@ -256,6 +265,9 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       state.canJump = true
       state.jumps = 0
       state.isGameEnded = false
+      state.inputCooldown = 0
+    } else {
+      gameStateRef.current.inputCooldown = 30
     }
   }, [isPlaying, dimensions])
 

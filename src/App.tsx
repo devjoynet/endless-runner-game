@@ -153,6 +153,7 @@ function App() {
   const handleNextLevel = () => {
     setCurrentLevel((prev) => prev + 1)
     setGameState('playing')
+    setCountdown(3)
   }
 
   const handleRestart = () => {
