@@ -3,7 +3,9 @@ import { useKV } from '@github/spark/hooks'
 import { GameCanvas } from './components/GameCanvas'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
 import { Badge } from './components/ui/badge'
-import { Trophy, Play } from '@phosphor-icons/react'
+import { Button } from './components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog'
+import { Trophy, Play, ChartBar } from '@phosphor-icons/react'
 
 type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete'
 
@@ -13,6 +15,11 @@ function App() {
   const [finalScore, setFinalScore] = useState(0)
   const [currentLevel, setCurrentLevel] = useState(1)
   const [highScore, setHighScore] = useKV<number>('high-score', 0)
+  const [totalGames, setTotalGames] = useKV<number>('total-games', 0)
+  const [totalScore, setTotalScore] = useKV<number>('total-score', 0)
+  const [levelsCompleted, setLevelsCompleted] = useKV<number>('levels-completed', 0)
+  const [totalJumps, setTotalJumps] = useKV<number>('total-jumps', 0)
+  const [gamesWon, setGamesWon] = useKV<number>('games-won', 0)
 
   const handleStart = () => {
     setGameState('playing')
@@ -20,16 +27,21 @@ function App() {
     setCurrentLevel(1)
   }
 
-  const handleGameOver = (score: number) => {
+  const handleGameOver = (score: number, jumps: number) => {
     setFinalScore(score)
     setGameState('gameOver')
     setHighScore((current) => {
       const currentHigh = current ?? 0
       return score > currentHigh ? score : currentHigh
     })
+    setTotalGames((current) => (current ?? 0) + 1)
+    setTotalScore((current) => (current ?? 0) + score)
+    setTotalJumps((current) => (current ?? 0) + jumps)
   }
 
-  const handleLevelComplete = (completedLevel: number) => {
+  const handleLevelComplete = (completedLevel: number, jumps: number) => {
+    setLevelsCompleted((current) => (current ?? 0) + 1)
+    
     if (completedLevel >= 10) {
       setFinalScore(currentScore)
       setGameState('gameOver')
@@ -37,6 +49,10 @@ function App() {
         const currentHigh = current ?? 0
         return currentScore > currentHigh ? currentScore : currentHigh
       })
+      setTotalGames((current) => (current ?? 0) + 1)
+      setTotalScore((current) => (current ?? 0) + currentScore)
+      setTotalJumps((current) => (current ?? 0) + jumps)
+      setGamesWon((current) => (current ?? 0) + 1)
     } else {
       setGameState('levelComplete')
     }
@@ -55,6 +71,13 @@ function App() {
 
   const isTouch = 'ontouchstart' in window
   const displayHighScore = highScore ?? 0
+  const displayTotalGames = totalGames ?? 0
+  const displayTotalScore = totalScore ?? 0
+  const displayLevelsCompleted = levelsCompleted ?? 0
+  const displayTotalJumps = totalJumps ?? 0
+  const displayGamesWon = gamesWon ?? 0
+  const avgScore = displayTotalGames > 0 ? Math.floor(displayTotalScore / displayTotalGames) : 0
+  const winRate = displayTotalGames > 0 ? Math.floor((displayGamesWon / displayTotalGames) * 100) : 0
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
@@ -78,6 +101,53 @@ function App() {
               <span className="font-semibold">{displayHighScore}</span>
             </Badge>
           )}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <ChartBar size={20} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Game Statistics</DialogTitle>
+                <DialogDescription>Your overall performance across all games</DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">High Score</p>
+                  <p className="text-2xl font-bold text-primary">{displayHighScore}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Total Games</p>
+                  <p className="text-2xl font-bold text-foreground">{displayTotalGames}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Average Score</p>
+                  <p className="text-2xl font-bold text-foreground">{avgScore}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Total Score</p>
+                  <p className="text-2xl font-bold text-foreground">{displayTotalScore}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Levels Completed</p>
+                  <p className="text-2xl font-bold text-accent">{displayLevelsCompleted}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Total Jumps</p>
+                  <p className="text-2xl font-bold text-foreground">{displayTotalJumps}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Games Won</p>
+                  <p className="text-2xl font-bold text-accent">{displayGamesWon}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Win Rate</p>
+                  <p className="text-2xl font-bold text-primary">{winRate}%</p>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

@@ -9,8 +9,8 @@ interface Obstacle {
 
 interface GameCanvasProps {
   onScoreUpdate: (score: number) => void
-  onGameOver: (finalScore: number) => void
-  onLevelComplete: (level: number) => void
+  onGameOver: (finalScore: number, jumps: number) => void
+  onLevelComplete: (level: number, jumps: number) => void
   isPlaying: boolean
   onStart: () => void
   currentLevel: number
@@ -39,6 +39,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     frameCount: 0,
     canJump: true,
     levelStartTime: 0,
+    jumps: 0,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -78,6 +79,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       if (!state.isJumping && state.canJump && state.playerY >= playerGroundY - 1) {
         state.playerVelocity = JUMP_FORCE
         state.isJumping = true
+        state.jumps++
       }
     }
 
@@ -144,7 +146,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
       const elapsedSeconds = state.frameCount / 60
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
-        onLevelComplete(currentLevel)
+        onLevelComplete(currentLevel, state.jumps)
         return
       }
 
@@ -168,7 +170,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
       for (const obstacle of state.obstacles) {
         if (checkCollision(obstacle)) {
-          onGameOver(state.score)
+          onGameOver(state.score, state.jumps)
           return
         }
       }
@@ -229,13 +231,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       state.score = 0
       state.frameCount = 0
       state.canJump = true
+      state.jumps = 0
     }
   }, [isPlaying, dimensions])
 
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden && isPlaying) {
-        onGameOver(gameStateRef.current.score)
+        onGameOver(gameStateRef.current.score, gameStateRef.current.jumps)
       }
     }
 
