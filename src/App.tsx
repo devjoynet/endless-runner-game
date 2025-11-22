@@ -16,7 +16,7 @@ function App() {
   const [currentScore, setCurrentScore] = useState(0)
   const [finalScore, setFinalScore] = useState(0)
   const [currentLevel, setCurrentLevel] = useState(1)
-  const [countdown, setCountdown] = useState(3)
+  const [countdown, setCountdown] = useState(1)
   const [highScore, setHighScore] = useKV<number>('high-score', 0)
   const [totalGames, setTotalGames] = useKV<number>('total-games', 0)
   const [totalScore, setTotalScore] = useKV<number>('total-score', 0)
@@ -79,13 +79,13 @@ function App() {
     })
 
     setGameState('gameOverCountdown')
-    setCountdown(3)
+    setCountdown(1)
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(countdownInterval)
           setGameState('gameOver')
-          return 3
+          return 1
         }
         return prev - 1
       })
@@ -123,27 +123,27 @@ function App() {
       })
 
       setGameState('gameOverCountdown')
-      setCountdown(3)
+      setCountdown(1)
       const countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(countdownInterval)
             setGameState('gameOver')
-            return 3
+            return 1
           }
           return prev - 1
         })
       }, 1000)
     } else {
       setGameState('levelComplete')
-      setCountdown(3)
+      setCountdown(1)
       const countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(countdownInterval)
             setGameState('playing')
             setCurrentLevel((prevLevel) => prevLevel + 1)
-            return 3
+            return 1
           }
           return prev - 1
         })
