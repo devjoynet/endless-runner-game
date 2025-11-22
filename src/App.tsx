@@ -415,15 +415,7 @@ function App() {
           </Card>
         )}
 
-        {gameState === 'gameOverCountdown' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-8xl font-bold text-primary animate-pulse">
-                {countdown}
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {gameState === 'gameOver' && (
           <Card className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm border-2">
@@ -467,9 +459,6 @@ function App() {
                 <p className="text-sm text-muted-foreground">
                   Speed increased by 5%
                 </p>
-                <div className="text-6xl font-bold text-primary mt-8 animate-pulse">
-                  {countdown}
-                </div>
               </div>
             </CardContent>
           </Card>
