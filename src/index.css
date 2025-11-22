@@ -62,3 +62,17 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+@supports (height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+:fullscreen {
+  background: var(--background);
+}
+
+::backdrop {
+  background: var(--background);
+}

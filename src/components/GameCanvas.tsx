@@ -59,17 +59,31 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     width: 800, 
     height: 400 
   })
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
     const updateDimensions = () => {
-      const width = Math.min(window.innerWidth - 32, 800)
-      const height = Math.min(width * 0.5, 400)
-      setDimensions({ width, height })
+      const fullscreenState = !!document.fullscreenElement
+      setIsFullscreen(fullscreenState)
+      
+      if (fullscreenState) {
+        const width = window.innerWidth
+        const height = window.innerHeight
+        setDimensions({ width, height })
+      } else {
+        const width = Math.min(window.innerWidth - 32, 800)
+        const height = Math.min(width * 0.5, 400)
+        setDimensions({ width, height })
+      }
     }
 
     updateDimensions()
     window.addEventListener('resize', updateDimensions)
-    return () => window.removeEventListener('resize', updateDimensions)
+    window.addEventListener('fullscreenchange', updateDimensions)
+    return () => {
+      window.removeEventListener('resize', updateDimensions)
+      window.removeEventListener('fullscreenchange', updateDimensions)
+    }
   }, [])
 
   useEffect(() => {
@@ -309,7 +323,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       ref={canvasRef}
       width={dimensions.width}
       height={dimensions.height}
-      className="rounded-lg shadow-lg border-2 border-border cursor-pointer"
+      className={`cursor-pointer ${isFullscreen ? '' : 'rounded-lg shadow-lg border-2 border-border'}`}
     />
   )
 }
