@@ -9,7 +9,7 @@ import { ShopModal, PowerUp, AVAILABLE_POWERUPS } from './components/ShopModal'
 import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
-type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown' | 'levelCompleteCountdown'
+type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown'
 
 function App() {
   const [gameState, setGameState] = useState<GameState>('start')
@@ -135,13 +135,14 @@ function App() {
         })
       }, 1000)
     } else {
-      setGameState('levelCompleteCountdown')
+      setGameState('levelComplete')
       setCountdown(3)
       const countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(countdownInterval)
-            setGameState('levelComplete')
+            setGameState('playing')
+            setCurrentLevel((prevLevel) => prevLevel + 1)
             return 3
           }
           return prev - 1
@@ -150,11 +151,7 @@ function App() {
     }
   }
 
-  const handleNextLevel = () => {
-    setCurrentLevel((prev) => prev + 1)
-    setGameState('playing')
-    setCountdown(3)
-  }
+
 
   const handleRestart = () => {
     setGameState('playing')
@@ -355,7 +352,7 @@ function App() {
           currentLevel={currentLevel}
           activePowerUps={activePowerUps}
           onShieldUsed={handleShieldUsed}
-          isCountdownActive={gameState === 'gameOverCountdown' || gameState === 'levelCompleteCountdown'}
+          isCountdownActive={gameState === 'gameOverCountdown' || gameState === 'levelComplete'}
         />
 
         {gameState === 'start' && (
@@ -458,16 +455,6 @@ function App() {
           </Card>
         )}
 
-        {gameState === 'levelCompleteCountdown' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-8xl font-bold text-primary animate-pulse">
-                {countdown}
-              </div>
-            </div>
-          </div>
-        )}
-
         {gameState === 'levelComplete' && (
           <Card className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm border-2">
             <CardContent className="text-center space-y-6 pt-6">
@@ -480,14 +467,10 @@ function App() {
                 <p className="text-sm text-muted-foreground">
                   Speed increased by 5%
                 </p>
+                <div className="text-6xl font-bold text-primary mt-8 animate-pulse">
+                  {countdown}
+                </div>
               </div>
-              <button
-                onClick={handleNextLevel}
-                className="text-primary hover:text-accent transition-colors font-semibold text-xl flex items-center gap-2 mx-auto"
-              >
-                <Play weight="fill" size={24} />
-                Next Level
-              </button>
             </CardContent>
           </Card>
         )}
