@@ -54,11 +54,22 @@ function App() {
     }
 
     const earnedPoints = Math.floor(secondsSurvived)
-    setPoints((current) => (current ?? 0) + earnedPoints)
+    const deathPenalty = 10
+    const netPoints = earnedPoints - deathPenalty
     
-    if (earnedPoints > 0) {
-      toast.success(`Earned ${earnedPoints} points!`, {
-        description: `Survived ${secondsSurvived.toFixed(1)} seconds`,
+    setPoints((current) => Math.max(0, (current ?? 0) + netPoints))
+    
+    if (netPoints > 0) {
+      toast.success(`Earned ${netPoints} points!`, {
+        description: `${earnedPoints} earned - ${deathPenalty} death penalty`,
+      })
+    } else if (netPoints < 0) {
+      toast.error(`Lost ${Math.abs(netPoints)} points!`, {
+        description: `${earnedPoints} earned - ${deathPenalty} death penalty`,
+      })
+    } else {
+      toast.info('No points gained', {
+        description: `${earnedPoints} earned - ${deathPenalty} death penalty`,
       })
     }
 
