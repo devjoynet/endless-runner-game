@@ -355,6 +355,7 @@ function App() {
           currentLevel={currentLevel}
           activePowerUps={activePowerUps}
           onShieldUsed={handleShieldUsed}
+          isCountdownActive={gameState === 'gameOverCountdown' || gameState === 'levelCompleteCountdown'}
         />
 
         {gameState === 'start' && (

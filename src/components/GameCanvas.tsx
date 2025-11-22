@@ -23,6 +23,7 @@ interface GameCanvasProps {
   currentLevel: number
   activePowerUps: ActivePowerUps
   onShieldUsed: () => void
+  isCountdownActive: boolean
 }
 
 const GROUND_HEIGHT = 80
@@ -36,7 +37,7 @@ const MIN_OBSTACLE_HEIGHT = 30
 const MAX_OBSTACLE_HEIGHT = 70
 const LEVEL_DURATION = 30
 
-export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel, activePowerUps, onShieldUsed }: GameCanvasProps) {
+export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel, activePowerUps, onShieldUsed, isCountdownActive }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const gameStateRef = useRef({
@@ -83,11 +84,13 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
     const handleJump = () => {
       if (!isPlaying) {
-        onStart()
+        if (!isCountdownActive) {
+          onStart()
+        }
         return
       }
 
-      if (state.inputCooldown > 0) {
+      if (isCountdownActive || state.inputCooldown > 0) {
         return
       }
 
@@ -250,7 +253,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel, activePowerUps, onShieldUsed])
+  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel, activePowerUps, onShieldUsed, isCountdownActive])
 
   useEffect(() => {
     if (!isPlaying) {
