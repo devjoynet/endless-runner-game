@@ -49,6 +49,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     canJump: true,
     levelStartTime: 0,
     jumps: 0,
+    isGameEnded: false,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -145,7 +146,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     }
 
     const gameLoop = () => {
-      if (!isPlaying) {
+      if (!isPlaying || state.isGameEnded) {
         animationFrameRef.current = requestAnimationFrame(gameLoop)
         return
       }
@@ -159,6 +160,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
 
       const elapsedSeconds = state.frameCount / 60
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
+        state.isGameEnded = true
         onLevelComplete(currentLevel, state.jumps)
         return
       }
@@ -188,6 +190,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
             onShieldUsed()
             state.obstacles = state.obstacles.filter(o => o !== obstacle)
           } else {
+            state.isGameEnded = true
             onGameOver(state.score, state.jumps)
             return
           }
@@ -252,12 +255,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       state.frameCount = 0
       state.canJump = true
       state.jumps = 0
+      state.isGameEnded = false
     }
   }, [isPlaying, dimensions])
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && isPlaying) {
+      if (document.hidden && isPlaying && !gameStateRef.current.isGameEnded) {
+        gameStateRef.current.isGameEnded = true
         onGameOver(gameStateRef.current.score, gameStateRef.current.jumps)
       }
     }
