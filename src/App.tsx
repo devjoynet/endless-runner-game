@@ -40,7 +40,7 @@ function App() {
     setCurrentLevel(1)
   }
 
-  const handleGameOver = (score: number, jumps: number) => {
+  const handleGameOver = (score: number, jumps: number, secondsSurvived: number) => {
     if (hasExtraLife) {
       toast.success('Extra Life Used!', {
         description: 'You can continue from where you died',
@@ -53,12 +53,12 @@ function App() {
       return
     }
 
-    const earnedPoints = Math.floor(score / 2)
+    const earnedPoints = Math.floor(secondsSurvived)
     setPoints((current) => (current ?? 0) + earnedPoints)
     
     if (earnedPoints > 0) {
       toast.success(`Earned ${earnedPoints} points!`, {
-        description: 'Spend them in the shop',
+        description: `Survived ${secondsSurvived.toFixed(1)} seconds`,
       })
     }
 
@@ -92,16 +92,16 @@ function App() {
     }, 1000)
   }
 
-  const handleLevelComplete = (completedLevel: number, jumps: number) => {
+  const handleLevelComplete = (completedLevel: number, jumps: number, secondsSurvived: number) => {
     setLevelsCompleted((current) => (current ?? 0) + 1)
     
     if (completedLevel >= 10) {
-      const earnedPoints = Math.floor(currentScore / 2)
+      const earnedPoints = Math.floor(secondsSurvived)
       setPoints((current) => (current ?? 0) + earnedPoints)
       
       if (earnedPoints > 0) {
         toast.success(`Earned ${earnedPoints} points!`, {
-          description: 'You completed all levels!',
+          description: `You completed all levels! Survived ${secondsSurvived.toFixed(1)} seconds`,
         })
       }
 

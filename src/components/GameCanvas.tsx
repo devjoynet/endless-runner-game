@@ -16,8 +16,8 @@ export interface ActivePowerUps {
 
 interface GameCanvasProps {
   onScoreUpdate: (score: number) => void
-  onGameOver: (finalScore: number, jumps: number) => void
-  onLevelComplete: (level: number, jumps: number) => void
+  onGameOver: (finalScore: number, jumps: number, secondsSurvived: number) => void
+  onLevelComplete: (level: number, jumps: number, secondsSurvived: number) => void
   isPlaying: boolean
   onStart: () => void
   currentLevel: number
@@ -175,7 +175,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
         state.isGameEnded = true
         state.showLevelCompleteHeading = true
-        onLevelComplete(currentLevel, state.jumps)
+        onLevelComplete(currentLevel, state.jumps, elapsedSeconds)
         return
       }
 
@@ -205,7 +205,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
             state.obstacles = state.obstacles.filter(o => o !== obstacle)
           } else {
             state.isGameEnded = true
-            onGameOver(state.score, state.jumps)
+            const secondsSurvived = state.frameCount / 60
+            onGameOver(state.score, state.jumps, secondsSurvived)
             return
           }
         }
@@ -294,7 +295,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     const handleVisibilityChange = () => {
       if (document.hidden && isPlaying && !gameStateRef.current.isGameEnded) {
         gameStateRef.current.isGameEnded = true
-        onGameOver(gameStateRef.current.score, gameStateRef.current.jumps)
+        const secondsSurvived = gameStateRef.current.frameCount / 60
+        onGameOver(gameStateRef.current.score, gameStateRef.current.jumps, secondsSurvived)
       }
     }
 
