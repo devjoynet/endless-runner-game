@@ -1,0 +1,240 @@
+import { useEffect, useRef, useState } from 'react'
+
+interface Obstacle {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+interface GameCanvasProps {
+  onScoreUpdate: (score: number) => void
+  onGameOver: (finalScore: number) => void
+  isPlaying: boolean
+  onStart: () => void
+}
+
+const GROUND_HEIGHT = 80
+const PLAYER_SIZE = 40
+const PLAYER_X = 100
+const GRAVITY = 0.8
+const JUMP_FORCE = -15
+const GAME_SPEED = 6
+const OBSTACLE_WIDTH = 30
+const MIN_OBSTACLE_HEIGHT = 30
+const MAX_OBSTACLE_HEIGHT = 70
+
+export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: GameCanvasProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const animationFrameRef = useRef<number | undefined>(undefined)
+  const gameStateRef = useRef({
+    playerY: 0,
+    playerVelocity: 0,
+    isJumping: false,
+    obstacles: [] as Obstacle[],
+    score: 0,
+    frameCount: 0,
+    canJump: true,
+  })
+
+  const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
+    width: 800, 
+    height: 400 
+  })
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      const width = Math.min(window.innerWidth - 32, 800)
+      const height = Math.min(width * 0.5, 400)
+      setDimensions({ width, height })
+    }
+
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const state = gameStateRef.current
+    const groundY = dimensions.height - GROUND_HEIGHT
+
+    const handleJump = () => {
+      if (!isPlaying) {
+        onStart()
+        return
+      }
+
+      if (!state.isJumping && state.canJump && state.playerY >= groundY - 1) {
+        state.playerVelocity = JUMP_FORCE
+        state.isJumping = true
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault()
+        if (state.canJump) {
+          handleJump()
+          state.canJump = false
+        }
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        state.canJump = true
+      }
+    }
+
+    const handleClick = () => {
+      if ('ontouchstart' in window) {
+        handleJump()
+      }
+    }
+
+    const spawnObstacle = () => {
+      const height = MIN_OBSTACLE_HEIGHT + Math.random() * (MAX_OBSTACLE_HEIGHT - MIN_OBSTACLE_HEIGHT)
+      state.obstacles.push({
+        x: dimensions.width,
+        y: groundY - height,
+        width: OBSTACLE_WIDTH,
+        height: height,
+      })
+    }
+
+    const checkCollision = (obstacle: Obstacle): boolean => {
+      const playerLeft = PLAYER_X
+      const playerRight = PLAYER_X + PLAYER_SIZE
+      const playerTop = state.playerY
+      const playerBottom = state.playerY + PLAYER_SIZE
+
+      const obstacleLeft = obstacle.x
+      const obstacleRight = obstacle.x + obstacle.width
+      const obstacleTop = obstacle.y
+      const obstacleBottom = obstacle.y + obstacle.height
+
+      return (
+        playerRight > obstacleLeft &&
+        playerLeft < obstacleRight &&
+        playerBottom > obstacleTop &&
+        playerTop < obstacleBottom
+      )
+    }
+
+    const gameLoop = () => {
+      if (!isPlaying) {
+        animationFrameRef.current = requestAnimationFrame(gameLoop)
+        return
+      }
+
+      state.frameCount++
+
+      state.playerVelocity += GRAVITY
+      state.playerY += state.playerVelocity
+
+      if (state.playerY >= groundY) {
+        state.playerY = groundY
+        state.playerVelocity = 0
+        state.isJumping = false
+      }
+
+      if (state.frameCount % 90 === 0) {
+        spawnObstacle()
+      }
+
+      state.obstacles = state.obstacles.filter((obstacle) => {
+        obstacle.x -= GAME_SPEED
+        return obstacle.x + obstacle.width > 0
+      })
+
+      for (const obstacle of state.obstacles) {
+        if (checkCollision(obstacle)) {
+          onGameOver(state.score)
+          return
+        }
+      }
+
+      state.score = Math.floor(state.frameCount / 10)
+      onScoreUpdate(state.score)
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
+      ctx.fillRect(0, 0, dimensions.width, dimensions.height)
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim()
+      ctx.fillRect(0, groundY, dimensions.width, GROUND_HEIGHT)
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+      const radius = 8
+      ctx.beginPath()
+      ctx.roundRect(PLAYER_X, state.playerY, PLAYER_SIZE, PLAYER_SIZE, radius)
+      ctx.fill()
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+      state.obstacles.forEach((obstacle) => {
+        ctx.beginPath()
+        ctx.roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, radius)
+        ctx.fill()
+      })
+
+      animationFrameRef.current = requestAnimationFrame(gameLoop)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    canvas.addEventListener('click', handleClick)
+
+    if (isPlaying && state.playerY === 0) {
+      state.playerY = groundY
+    }
+
+    gameLoop()
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+      canvas.removeEventListener('click', handleClick)
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onStart])
+
+  useEffect(() => {
+    if (!isPlaying) {
+      const state = gameStateRef.current
+      state.playerY = dimensions.height - GROUND_HEIGHT
+      state.playerVelocity = 0
+      state.isJumping = false
+      state.obstacles = []
+      state.score = 0
+      state.frameCount = 0
+      state.canJump = true
+    }
+  }, [isPlaying, dimensions])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isPlaying) {
+        onGameOver(gameStateRef.current.score)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [isPlaying, onGameOver])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={dimensions.width}
+      height={dimensions.height}
+      className="rounded-lg shadow-lg border-2 border-border cursor-pointer"
+    />
+  )
+}
