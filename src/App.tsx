@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { GameCanvas, ActivePowerUps } from './components/GameCanvas'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
+import { Card, CardContent } from './components/ui/card'
 import { Badge } from './components/ui/badge'
 import { Button } from './components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog'
@@ -417,16 +417,18 @@ function App() {
 
         {gameState === 'start' && (
           <Card className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm border-2">
-            <CardHeader className="text-center space-y-4">
-              <CardTitle className="text-4xl font-bold">Ready to Jump?</CardTitle>
-              <CardDescription className="text-lg">
-                {isTouch ? 'Tap the screen' : 'Press SPACEBAR'} to jump over obstacles
-              </CardDescription>
+            <div className="w-full max-w-2xl px-6 py-8 text-center space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-4xl font-bold text-foreground">Ready to Jump?</h2>
+                <p className="text-lg text-muted-foreground">
+                  {isTouch ? 'Tap the screen' : 'Press SPACEBAR'} to jump over obstacles
+                </p>
+              </div>
               
               {(Object.keys(ownedPowerUps ?? {}).some(key => (ownedPowerUps?.[key] ?? 0) > 0) || hasExtraLife) && (
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3">
                   <p className="text-sm font-semibold text-muted-foreground">Activate Power-Ups</p>
-                  <div className="flex flex-wrap gap-2 justify-center max-w-md">
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {hasExtraLife && (
                       <Badge variant="default" className="bg-primary text-primary-foreground px-3 py-1.5">
                         <Heart weight="fill" size={16} className="mr-1" />
@@ -462,7 +464,7 @@ function App() {
                 </div>
               )}
               
-              <div className="pt-4">
+              <div>
                 <button
                   onClick={handleStart}
                   className="text-primary hover:text-accent transition-colors font-semibold text-xl flex items-center gap-2 mx-auto"
@@ -473,19 +475,19 @@ function App() {
               </div>
 
               {isFullscreen && (
-                <div className="pt-2">
+                <div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={toggleFullscreen}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 mx-auto"
                   >
                     <ArrowsIn size={16} />
                     Exit Fullscreen
                   </Button>
                 </div>
               )}
-            </CardHeader>
+            </div>
           </Card>
         )}
 
