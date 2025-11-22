@@ -6,7 +6,7 @@ import { Badge } from './components/ui/badge'
 import { Button } from './components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog'
 import { ShopModal, PowerUp, AVAILABLE_POWERUPS } from './components/ShopModal'
-import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield, ArrowsOut, ArrowsIn } from '@phosphor-icons/react'
+import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown'
@@ -35,41 +35,12 @@ function App() {
     pointMultiplier: false,
   })
   const [hasExtraLife, setHasExtraLife] = useState(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   const handleStart = () => {
     setGameState('playing')
     setCurrentScore(0)
     setCurrentLevel(1)
   }
-
-  const toggleFullscreen = async () => {
-    if (!containerRef.current) return
-
-    try {
-      if (!isFullscreen) {
-        if (containerRef.current.requestFullscreen) {
-          await containerRef.current.requestFullscreen()
-        }
-      } else {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen()
-        }
-      }
-    } catch (error) {
-      console.error('Fullscreen error:', error)
-    }
-  }
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
 
   const handleGameOver = (score: number, jumps: number, secondsSurvived: number) => {
     if (hasExtraLife) {
@@ -309,8 +280,8 @@ function App() {
   }
 
   return (
-    <div ref={containerRef} className={`min-h-screen flex flex-col items-center p-4 gap-6 ${isFullscreen ? 'justify-center bg-background' : 'justify-center'}`}>
-      <div className={`flex items-center justify-between w-full max-w-[800px] flex-wrap gap-4 ${isFullscreen ? 'hidden' : ''}`}>
+    <div className="min-h-screen flex flex-col items-center p-4 gap-6 justify-center">
+      <div className="flex items-center justify-between w-full max-w-[800px] flex-wrap gap-4">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
             Jump Runner
@@ -392,17 +363,6 @@ function App() {
       </div>
 
       <div className="relative">
-        {!isFullscreen && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute -top-12 right-0 z-10"
-            onClick={toggleFullscreen}
-          >
-            <ArrowsOut size={20} />
-          </Button>
-        )}
-
         <GameCanvas
           onScoreUpdate={setCurrentScore}
           onGameOver={handleGameOver}
@@ -473,20 +433,6 @@ function App() {
                   Start Game
                 </button>
               </div>
-
-              {isFullscreen && (
-                <div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleFullscreen}
-                    className="flex items-center gap-2 mx-auto"
-                  >
-                    <ArrowsIn size={16} />
-                    Exit Fullscreen
-                  </Button>
-                </div>
-              )}
             </div>
           </Card>
         )}
@@ -535,20 +481,6 @@ function App() {
                 <Play weight="fill" size={24} />
                 Play Again
               </button>
-
-              {isFullscreen && (
-                <div className="pt-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleFullscreen}
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowsIn size={16} />
-                    Exit Fullscreen
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
         )}
@@ -612,23 +544,11 @@ function App() {
                 )}
               </div>
             )}
-
-            {isFullscreen && (
-              <div className="absolute bottom-4 right-4">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={toggleFullscreen}
-                >
-                  <ArrowsIn size={20} />
-                </Button>
-              </div>
-            )}
           </>
         )}
       </div>
 
-      <p className={`text-sm text-muted-foreground max-w-[600px] text-center ${isFullscreen ? 'hidden' : ''}`}>
+      <p className="text-sm text-muted-foreground max-w-[600px] text-center">
         {isTouch
           ? 'Tap anywhere on the screen to make your character jump. Time your jumps to avoid the obstacles!'
           : 'Use the SPACEBAR to jump. Hold and release to control your jumps. Survive as long as you can!'}
