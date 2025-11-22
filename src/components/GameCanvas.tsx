@@ -63,6 +63,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
 
     const state = gameStateRef.current
     const groundY = dimensions.height - GROUND_HEIGHT
+    const playerGroundY = groundY - PLAYER_SIZE
 
     const handleJump = () => {
       if (!isPlaying) {
@@ -70,7 +71,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
         return
       }
 
-      if (!state.isJumping && state.canJump && state.playerY >= groundY - 1) {
+      if (!state.isJumping && state.canJump && state.playerY >= playerGroundY - 1) {
         state.playerVelocity = JUMP_FORCE
         state.isJumping = true
       }
@@ -138,8 +139,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
       state.playerVelocity += GRAVITY
       state.playerY += state.playerVelocity
 
-      if (state.playerY >= groundY) {
-        state.playerY = groundY
+      if (state.playerY >= playerGroundY) {
+        state.playerY = playerGroundY
         state.playerVelocity = 0
         state.isJumping = false
       }
@@ -190,7 +191,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
     canvas.addEventListener('click', handleClick)
 
     if (isPlaying && state.playerY === 0) {
-      state.playerY = groundY
+      state.playerY = playerGroundY
     }
 
     gameLoop()
@@ -208,7 +209,8 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
   useEffect(() => {
     if (!isPlaying) {
       const state = gameStateRef.current
-      state.playerY = dimensions.height - GROUND_HEIGHT
+      const groundY = dimensions.height - GROUND_HEIGHT
+      state.playerY = groundY - PLAYER_SIZE
       state.playerVelocity = 0
       state.isJumping = false
       state.obstacles = []
