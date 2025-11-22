@@ -415,8 +415,12 @@ function App() {
           </Card>
         )}
 
-
-
+        {gameState === 'gameOver' && (
+          <Card className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm border-2">
+            <CardContent className="text-center space-y-6 pt-6">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Game Over</h2>
+                <div className="text-5xl font-bold text-primary my-4">{finalScore}</div>
                 {currentLevel === 10 && (
                   <Badge variant="default" className="bg-accent text-accent-foreground font-semibold mb-2">
                     All Levels Complete! 🎉
