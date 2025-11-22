@@ -10,8 +10,10 @@ interface Obstacle {
 interface GameCanvasProps {
   onScoreUpdate: (score: number) => void
   onGameOver: (finalScore: number) => void
+  onLevelComplete: (level: number) => void
   isPlaying: boolean
   onStart: () => void
+  currentLevel: number
 }
 
 const GROUND_HEIGHT = 80
@@ -19,12 +21,13 @@ const PLAYER_SIZE = 40
 const PLAYER_X = 100
 const GRAVITY = 0.8
 const JUMP_FORCE = -15
-const GAME_SPEED = 6
+const BASE_GAME_SPEED = 6
 const OBSTACLE_WIDTH = 30
 const MIN_OBSTACLE_HEIGHT = 30
 const MAX_OBSTACLE_HEIGHT = 70
+const LEVEL_DURATION = 30
 
-export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: GameCanvasProps) {
+export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const gameStateRef = useRef({
@@ -35,6 +38,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
     score: 0,
     frameCount: 0,
     canJump: true,
+    levelStartTime: 0,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -136,6 +140,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
 
       state.frameCount++
 
+      const currentGameSpeed = BASE_GAME_SPEED * Math.pow(1.05, currentLevel - 1)
+
+      const elapsedSeconds = state.frameCount / 60
+      if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
+        onLevelComplete(currentLevel)
+        return
+      }
+
       state.playerVelocity += GRAVITY
       state.playerY += state.playerVelocity
 
@@ -150,7 +162,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
       }
 
       state.obstacles = state.obstacles.filter((obstacle) => {
-        obstacle.x -= GAME_SPEED
+        obstacle.x -= currentGameSpeed
         return obstacle.x + obstacle.width > 0
       })
 
@@ -204,7 +216,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, isPlaying, onStart }: Ga
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onStart])
+  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel])
 
   useEffect(() => {
     if (!isPlaying) {

@@ -5,10 +5,10 @@ A simple, addictive side-scrolling runner game where players jump over obstacles
 **Experience Qualities**:
 1. **Immediate** - Players should be able to start playing within seconds with zero learning curve
 2. **Responsive** - Every jump and collision should feel tight and satisfying with no input lag
-3. **Challenging** - Difficulty should ramp naturally, keeping players engaged and coming back to beat their score
+3. **Progressive** - Difficulty ramps through structured levels, rewarding skill and persistence with clear milestones
 
-**Complexity Level**: Micro Tool (single-purpose)
-  - This is a focused, single-mechanic game with one action (jump), one goal (survive), and persistent high score tracking
+**Complexity Level**: Light Application (multiple features with basic state)
+  - A focused runner game with structured progression across 10 levels, persistent high score tracking, and state management for level advancement
 
 ## Essential Features
 
@@ -41,18 +41,27 @@ A simple, addictive side-scrolling runner game where players jump over obstacles
 - **Success criteria**: Score is clearly visible, high score persists between sessions, gives sense of achievement
 
 ### Game States
-- **Functionality**: Manages start screen, playing state, and game over state
-- **Purpose**: Provides structure and restart capability
-- **Trigger**: Spacebar to start, collision to end, spacebar to restart
-- **Progression**: Start screen → press spacebar → playing → collision → game over screen → press spacebar → playing
-- **Success criteria**: Transitions are clear, controls are consistent, easy to restart
+- **Functionality**: Manages start screen, playing state, level complete state, and game over state
+- **Purpose**: Provides structure, progression, and restart capability
+- **Trigger**: Spacebar to start, collision to end, 30 seconds survival to complete level
+- **Progression**: Start screen → press spacebar → playing → 30 seconds → level complete screen → next level → playing (repeat up to level 10) → game over
+- **Success criteria**: Transitions are clear, controls are consistent, easy to continue/restart
+
+### Level Progression
+- **Functionality**: Players progress through 10 levels, each lasting 30 seconds with 5% speed increase
+- **Purpose**: Provides structured difficulty progression and sense of achievement
+- **Trigger**: Surviving 30 seconds without collision advances to next level
+- **Progression**: Level 1 → survive 30s → Level 2 (+5% speed) → survive 30s → ... → Level 10 → complete game
+- **Success criteria**: Speed increase is noticeable but not overwhelming, level indicator is clearly visible, victory celebration for completing all levels
 
 ## Edge Case Handling
 - **Multiple simultaneous obstacles** - Ensure spacing never makes it impossible to survive
 - **Held spacebar** - Prevent infinite jumping; require key release between jumps
 - **Tab blur** - Pause game when window loses focus to prevent unfair deaths
-- **Rapid restarts** - Reset all game state properly to prevent bugs
+- **Rapid restarts** - Reset all game state properly including level counter
 - **Ultra-high scores** - Display large numbers readably
+- **Level 10 completion** - Clear victory state when all levels complete
+- **Mid-level restart** - Restarting resets to level 1
 
 ## Design Direction
 The design should feel energetic and playful with retro arcade influences, featuring bold geometric shapes, high contrast colors, and smooth animations that make the simple jumping mechanic feel satisfying and responsive - minimal interface that keeps focus on the action.
@@ -87,10 +96,10 @@ Animations should feel snappy and arcade-like with slight anticipation and follo
 
 ## Component Selection
 - **Components**: 
-  - Card component for game over overlay with centered score display
-  - Button component styled as text link for restart action
+  - Card component for game over and level complete overlays with centered displays
+  - Button component styled as text link for restart/continue actions
   - Custom canvas element for game rendering (player, obstacles, ground)
-  - Badge component for high score indicator
+  - Badge component for high score and level indicators
   
 - **Customizations**: 
   - Custom game canvas component managing animation loop and input
