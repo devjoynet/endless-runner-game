@@ -42,8 +42,8 @@ function App() {
     setCurrentLevel(1)
   }
 
-  const handleGameOver = (score: number, jumps: number, secondsSurvived: number) => {
-    if (hasExtraLife) {
+  const handleGameOver = (score: number, jumps: number, secondsSurvived: number, shouldRespawn?: boolean) => {
+    if (hasExtraLife && shouldRespawn !== false) {
       toast.success('Extra Life Used!', {
         description: 'You can continue from where you died',
       })
@@ -52,7 +52,7 @@ function App() {
         ...current,
         'extra-life': Math.max(0, (current?.['extra-life'] ?? 0) - 1),
       }))
-      return
+      return true
     }
 
     const earnedPoints = Math.floor(secondsSurvived)

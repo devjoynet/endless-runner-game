@@ -16,7 +16,7 @@ export interface ActivePowerUps {
 
 interface GameCanvasProps {
   onScoreUpdate: (score: number) => void
-  onGameOver: (finalScore: number, jumps: number, secondsSurvived: number) => void
+  onGameOver: (finalScore: number, jumps: number, secondsSurvived: number, shouldRespawn?: boolean) => boolean | void
   onLevelComplete: (level: number, jumps: number, secondsSurvived: number) => void
   isPlaying: boolean
   onStart: () => void
@@ -218,10 +218,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
             onShieldUsed()
             state.obstacles = state.obstacles.filter(o => o !== obstacle)
           } else {
-            state.isGameEnded = true
             const secondsSurvived = state.frameCount / 60
-            onGameOver(state.score, state.jumps, secondsSurvived)
-            return
+            const shouldContinue = onGameOver(state.score, state.jumps, secondsSurvived)
+            if (shouldContinue) {
+              state.obstacles = state.obstacles.filter(o => o !== obstacle)
+            } else {
+              state.isGameEnded = true
+              return
+            }
           }
         }
       }
