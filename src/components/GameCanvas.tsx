@@ -55,6 +55,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     isGameEnded: false,
     inputCooldown: 0,
     showLevelCompleteHeading: false,
+    finishLineX: 0,
   })
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ 
@@ -233,6 +234,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       }
 
       const elapsedSeconds = state.frameCount / 60
+      
+      if (state.finishLineX === 0) {
+        const totalDistance = currentGameSpeed * 60 * LEVEL_DURATION
+        state.finishLineX = dimensions.width + totalDistance
+      }
+      
+      state.finishLineX -= currentGameSpeed
+      
       if (elapsedSeconds >= LEVEL_DURATION && currentLevel < 10) {
         state.isGameEnded = true
         state.showLevelCompleteHeading = true
@@ -299,6 +308,29 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         ctx.fill()
       })
 
+      if (state.finishLineX < dimensions.width && state.finishLineX > -50) {
+        const finishLineWidth = 20
+        const stripeHeight = 20
+        const numStripes = Math.ceil(dimensions.height / (stripeHeight * 2))
+        
+        for (let i = 0; i < numStripes; i++) {
+          ctx.fillStyle = i % 2 === 0 
+            ? getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim()
+            : getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
+          ctx.fillRect(state.finishLineX, i * stripeHeight * 2, finishLineWidth, stripeHeight)
+        }
+        
+        ctx.save()
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        ctx.font = 'bold 24px Inter, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.translate(state.finishLineX + finishLineWidth / 2, dimensions.height / 2)
+        ctx.rotate(-Math.PI / 2)
+        ctx.fillText('FINISH', 0, 0)
+        ctx.restore()
+      }
+
       if (state.showLevelCompleteHeading) {
         ctx.save()
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
@@ -350,8 +382,10 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
       state.isGameEnded = false
       state.inputCooldown = 0
       state.showLevelCompleteHeading = false
+      state.finishLineX = 0
     } else {
       gameStateRef.current.inputCooldown = 30
+      gameStateRef.current.finishLineX = 0
     }
   }, [isPlaying, dimensions])
 
