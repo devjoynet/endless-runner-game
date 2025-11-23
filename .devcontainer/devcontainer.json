@@ -10,17 +10,17 @@
 			"version": "latest",
 			"bicepVersion": "latest"
 		}
-	},
-
-	// Mount the host SSH agent socket into the container
-	"mounts": [
-		"type=bind,readonly,source=${env:SSH_AUTH_SOCK},target=/ssh-agent"
-	],
-
-	// Set the SSH_AUTH_SOCK environment variable in the container
-	"remoteEnv": {
-		"SSH_AUTH_SOCK": "/ssh-agent"
 	}
+
+	// // Mount the host SSH agent socket into the container
+	// "mounts": [
+	// 	"type=bind,readonly,source=${env:SSH_AUTH_SOCK},target=/ssh-agent"
+	// ],
+
+	// // Set the SSH_AUTH_SOCK environment variable in the container
+	// "remoteEnv": {
+	// 	"SSH_AUTH_SOCK": "/ssh-agent"
+	// }
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
