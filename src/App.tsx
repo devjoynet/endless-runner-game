@@ -451,7 +451,9 @@ function App() {
             <CardContent className="text-center space-y-6 pt-6">
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">Game Over</h2>
-                <div className="text-5xl font-bold text-primary my-4">{finalScore}</div>
+                <div className={`text-5xl font-bold my-4 ${pointsEarned - pointsLost >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                  {pointsEarned - pointsLost >= 0 ? '+' : ''}{pointsEarned - pointsLost}
+                </div>
                 {currentLevel === 10 && (
                   <Badge variant="default" className="bg-accent text-accent-foreground font-semibold mb-2">
                     All Levels Complete! 🎉
@@ -476,10 +478,8 @@ function App() {
                   </div>
                 )}
                 <div className="flex items-center justify-center gap-2 text-xl pt-2 border-t border-border mt-2">
-                  <span className="text-muted-foreground">Net Points:</span>
-                  <span className={`font-bold ${pointsEarned - pointsLost >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                    {pointsEarned - pointsLost >= 0 ? '+' : ''}{pointsEarned - pointsLost}
-                  </span>
+                  <span className="text-muted-foreground">Final Score:</span>
+                  <span className="font-bold text-primary">{finalScore}</span>
                 </div>
               </div>
               
