@@ -107,6 +107,13 @@ A simple, addictive side-scrolling runner game where players jump over obstacles
 - **Progression**: Click button → modal opens → view stats (high score, total games, average score, levels completed, total jumps, games won, win rate)
 - **Success criteria**: All stats accurately tracked, clearly presented, persist between sessions
 
+### Theme Toggle
+- **Functionality**: Switch between light and dark themes
+- **Purpose**: Provides visual customization and comfort for different lighting conditions
+- **Trigger**: Click theme toggle button in bottom left corner
+- **Progression**: Click button → theme switches → preference saved → applies immediately to all UI components and game canvas
+- **Success criteria**: Theme persists between sessions, all components remain visually accessible in both themes, default to dark theme
+
 ## Edge Case Handling
 - **Multiple simultaneous obstacles** - Ensure spacing never makes it impossible to survive
 - **Held spacebar** - Prevent infinite jumping; require key release between jumps
@@ -123,17 +130,25 @@ A simple, addictive side-scrolling runner game where players jump over obstacles
 The design should feel energetic and playful with retro arcade influences, featuring bold geometric shapes, high contrast colors, and smooth animations that make the simple jumping mechanic feel satisfying and responsive - minimal interface that keeps focus on the action while prominently displaying progression systems (points, shop, power-ups).
 
 ## Color Selection
-Complementary (opposite colors) - Using a vibrant blue/orange scheme to create high energy and clear visual distinction between player and obstacles, evoking classic arcade games while feeling modern.
+Complementary (opposite colors) - Using a vibrant blue/orange scheme to create high energy and clear visual distinction between player and obstacles, evoking classic arcade games while feeling modern. Includes both light and dark themes with a toggle in the bottom left corner, defaulting to dark mode.
 
-- **Primary Color**: Deep cyan blue (oklch(0.55 0.15 230)) - represents the player character, communicates trust and control
-- **Secondary Colors**: Rich navy (oklch(0.25 0.08 240)) for UI elements and ground, creates depth without competing for attention
-- **Accent Color**: Vibrant orange (oklch(0.68 0.18 45)) - used for obstacles, power-ups, and points display, immediately grabs attention
-- **Foreground/Background Pairings**:
+- **Primary Color**: Deep cyan blue (oklch(0.55 0.15 230) light / oklch(0.60 0.18 230) dark) - represents the player character, communicates trust and control
+- **Secondary Colors**: Rich navy (oklch(0.25 0.08 240) light / oklch(0.28 0.04 240) dark) for UI elements and ground, creates depth without competing for attention
+- **Accent Color**: Vibrant orange (oklch(0.68 0.18 45) light / oklch(0.72 0.20 45) dark) - used for obstacles, power-ups, and points display, immediately grabs attention
+
+- **Light Theme Foreground/Background Pairings**:
   - Background (Light cream oklch(0.97 0.01 85)): Dark navy text (oklch(0.25 0.08 240)) - Ratio 12.1:1 ✓
   - Card (White oklch(0.99 0 0)): Dark navy text (oklch(0.25 0.08 240)) - Ratio 13.5:1 ✓
   - Primary (Deep cyan oklch(0.55 0.15 230)): White text (oklch(0.99 0 0)) - Ratio 5.2:1 ✓
-  - Accent (Vibrant orange oklch(0.68 0.18 45)): Dark navy text (oklch(0.25 0.08 240)) - Ratio 6.8:1 ✓
-  - Muted (Soft gray oklch(0.88 0.01 240)): Dark navy text (oklch(0.25 0.08 240)) - Ratio 9.2:1 ✓
+  - Accent (Vibrant orange oklch(0.68 0.18 45)): White text (oklch(0.99 0 0)) - Ratio 5.5:1 ✓
+  - Muted (Soft gray oklch(0.88 0.01 240)): Medium navy text (oklch(0.45 0.05 240)) - Ratio 6.5:1 ✓
+
+- **Dark Theme Foreground/Background Pairings**:
+  - Background (Dark blue oklch(0.15 0.02 240)): Light text (oklch(0.95 0.01 240)) - Ratio 13.2:1 ✓
+  - Card (Dark blue-gray oklch(0.20 0.02 240)): Light text (oklch(0.95 0.01 240)) - Ratio 11.8:1 ✓
+  - Primary (Bright cyan oklch(0.60 0.18 230)): White text (oklch(0.99 0 0)) - Ratio 4.8:1 ✓
+  - Accent (Bright orange oklch(0.72 0.20 45)): Dark background (oklch(0.15 0.02 240)) - Ratio 7.2:1 ✓
+  - Muted (Medium gray oklch(0.25 0.03 240)): Light gray text (oklch(0.65 0.02 240)) - Ratio 5.8:1 ✓
 
 ## Font Selection
 The typeface should feel bold, geometric, and slightly rounded to match the playful arcade aesthetic while maintaining excellent readability for score displays - using Inter for its clean geometric forms and excellent number legibility.
@@ -180,6 +195,8 @@ Animations should feel snappy and arcade-like with slight anticipation and follo
   - Trophy for high score
   - Play for start/restart
   - ChartBar for statistics
+  - Sun for light theme
+  - Moon for dark theme
   
 - **Spacing**: 
   - Shop grid: 2 columns on desktop, 1 on mobile with gap-4

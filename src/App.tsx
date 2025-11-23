@@ -6,6 +6,7 @@ import { Badge } from './components/ui/badge'
 import { Button } from './components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog'
 import { ShopModal, PowerUp, AVAILABLE_POWERUPS } from './components/ShopModal'
+import { ThemeToggle } from './components/ThemeToggle'
 import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -286,6 +287,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 gap-6 justify-center">
+      <ThemeToggle />
       <div className="flex items-center justify-between w-full max-w-[800px] flex-wrap gap-4">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
