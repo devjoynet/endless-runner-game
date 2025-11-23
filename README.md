@@ -26,3 +26,4 @@ wsltest
 wsltest2
 wsltest3
 ssh wintest
+wsltest1
