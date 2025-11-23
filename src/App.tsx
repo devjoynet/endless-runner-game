@@ -478,7 +478,7 @@ function App() {
                   </div>
                 )}
                 <div className="flex items-center justify-center gap-2 text-xl pt-2 border-t border-border mt-2">
-                  <span className="text-muted-foreground">Final Score:</span>
+                  <span className="text-muted-foreground">Score:</span>
                   <span className="font-bold text-primary">{finalScore}</span>
                 </div>
               </div>
