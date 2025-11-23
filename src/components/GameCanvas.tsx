@@ -19,7 +19,9 @@ interface GameCanvasProps {
   onGameOver: (finalScore: number, jumps: number, secondsSurvived: number, shouldRespawn?: boolean) => boolean | void
   onLevelComplete: (level: number, jumps: number, secondsSurvived: number) => void
   isPlaying: boolean
+  isPaused: boolean
   onStart: () => void
+  onContinue: () => void
   currentLevel: number
   activePowerUps: ActivePowerUps
   onShieldUsed: () => void
@@ -37,7 +39,7 @@ const MIN_OBSTACLE_HEIGHT = 30
 const MAX_OBSTACLE_HEIGHT = 70
 const LEVEL_DURATION = 30
 
-export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, onStart, currentLevel, activePowerUps, onShieldUsed, isCountdownActive }: GameCanvasProps) {
+export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlaying, isPaused, onStart, onContinue, currentLevel, activePowerUps, onShieldUsed, isCountdownActive }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const gameStateRef = useRef({
@@ -98,6 +100,11 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     const playerGroundY = groundY - PLAYER_SIZE
 
     const handleJump = () => {
+      if (isPaused) {
+        onContinue()
+        return
+      }
+
       if (!isPlaying) {
         if (!isCountdownActive) {
           onStart()
@@ -169,6 +176,46 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
     }
 
     const gameLoop = () => {
+      if (isPaused) {
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
+        ctx.fillRect(0, 0, dimensions.width, dimensions.height)
+
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim()
+        ctx.fillRect(0, groundY, dimensions.width, GROUND_HEIGHT)
+
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        const radius = 8
+        ctx.beginPath()
+        ctx.roundRect(PLAYER_X, state.playerY, PLAYER_SIZE, PLAYER_SIZE, radius)
+        ctx.fill()
+
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+        state.obstacles.forEach((obstacle) => {
+          ctx.beginPath()
+          ctx.roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, radius)
+          ctx.fill()
+        })
+
+        ctx.save()
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+        ctx.fillRect(0, 0, dimensions.width, dimensions.height)
+        
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        ctx.font = 'bold 36px Inter, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('Extra Life Used!', dimensions.width / 2, dimensions.height / 2 - 40)
+        
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim()
+        ctx.font = '24px Inter, sans-serif'
+        const isTouch = 'ontouchstart' in window
+        ctx.fillText(isTouch ? 'Tap to continue' : 'Press SPACEBAR to continue', dimensions.width / 2, dimensions.height / 2 + 20)
+        ctx.restore()
+
+        animationFrameRef.current = requestAnimationFrame(gameLoop)
+        return
+      }
+
       if (!isPlaying || state.isGameEnded) {
         animationFrameRef.current = requestAnimationFrame(gameLoop)
         return
@@ -220,7 +267,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
           } else {
             const shouldContinue = onGameOver(state.score, state.jumps, elapsedSeconds)
             if (shouldContinue) {
-              state.obstacles = state.obstacles.filter(o => o !== obstacle)
+              obstacle.x = PLAYER_X - obstacle.width - 50
             } else {
               state.isGameEnded = true
               return
@@ -286,7 +333,7 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, currentLevel, activePowerUps, onShieldUsed, isCountdownActive])
+  }, [isPlaying, isPaused, dimensions, onScoreUpdate, onGameOver, onLevelComplete, onStart, onContinue, currentLevel, activePowerUps, onShieldUsed, isCountdownActive])
 
   useEffect(() => {
     if (!isPlaying) {

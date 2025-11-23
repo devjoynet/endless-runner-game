@@ -9,7 +9,7 @@ import { ShopModal, PowerUp, AVAILABLE_POWERUPS } from './components/ShopModal'
 import { Trophy, Play, ChartBar, Sparkle, Heart, Parachute, Lightning, Shield } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
-type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown'
+type GameState = 'start' | 'playing' | 'gameOver' | 'levelComplete' | 'gameOverCountdown' | 'paused'
 
 function App() {
   const [gameState, setGameState] = useState<GameState>('start')
@@ -44,14 +44,7 @@ function App() {
 
   const handleGameOver = (score: number, jumps: number, secondsSurvived: number, shouldRespawn?: boolean) => {
     if (hasExtraLife && shouldRespawn !== false) {
-      toast.success('Extra Life Used!', {
-        description: 'You can continue from where you died',
-      })
-      setHasExtraLife(false)
-      setOwnedPowerUps((current) => ({
-        ...current,
-        'extra-life': Math.max(0, (current?.['extra-life'] ?? 0) - 1),
-      }))
+      setGameState('paused')
       return true
     }
 
@@ -184,6 +177,18 @@ function App() {
       pointMultiplier: false,
     })
     setHasExtraLife(false)
+  }
+
+  const handleContinue = () => {
+    toast.success('Extra Life Used!', {
+      description: 'Continuing from where you died',
+    })
+    setHasExtraLife(false)
+    setOwnedPowerUps((current) => ({
+      ...current,
+      'extra-life': Math.max(0, (current?.['extra-life'] ?? 0) - 1),
+    }))
+    setGameState('playing')
   }
 
   const handlePurchase = (powerUpId: string) => {
@@ -368,7 +373,9 @@ function App() {
           onGameOver={handleGameOver}
           onLevelComplete={handleLevelComplete}
           isPlaying={gameState === 'playing'}
+          isPaused={gameState === 'paused'}
           onStart={handleStart}
+          onContinue={handleContinue}
           currentLevel={currentLevel}
           activePowerUps={activePowerUps}
           onShieldUsed={handleShieldUsed}
