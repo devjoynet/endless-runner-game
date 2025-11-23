@@ -104,19 +104,19 @@ function App() {
   const handleLevelComplete = (completedLevel: number, jumps: number, secondsSurvived: number) => {
     setLevelsCompleted((current) => (current ?? 0) + 1)
     
+    const earnedPoints = Math.floor(secondsSurvived)
+    
+    setPoints((current) => (current ?? 0) + earnedPoints)
+    
+    if (earnedPoints > 0) {
+      toast.success(`Earned ${earnedPoints} points!`, {
+        description: `Level ${completedLevel} complete! Survived ${secondsSurvived.toFixed(1)} seconds`,
+      })
+    }
+    
     if (completedLevel >= 10) {
-      const earnedPoints = Math.floor(secondsSurvived)
-      
       setPointsEarned(earnedPoints)
       setPointsLost(0)
-      
-      setPoints((current) => (current ?? 0) + earnedPoints)
-      
-      if (earnedPoints > 0) {
-        toast.success(`Earned ${earnedPoints} points!`, {
-          description: `You completed all levels! Survived ${secondsSurvived.toFixed(1)} seconds`,
-        })
-      }
 
       setFinalScore(currentScore)
       setHighScore((current) => {
