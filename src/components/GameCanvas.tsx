@@ -218,14 +218,14 @@ export function GameCanvas({ onScoreUpdate, onGameOver, onLevelComplete, isPlayi
             onShieldUsed()
             state.obstacles = state.obstacles.filter(o => o !== obstacle)
           } else {
-            const shouldContinue = onGameOver(state.score, state.jumps, secondsSurvived)
-            const shouldContinue = onGameOver(state.score, state.jumps, secondsSurvived)
-            if (shouldContinue) {ter(o => o !== obstacle)
+            const shouldContinue = onGameOver(state.score, state.jumps, elapsedSeconds)
+            if (shouldContinue) {
               state.obstacles = state.obstacles.filter(o => o !== obstacle)
             } else {
               state.isGameEnded = true
               return
             }
+          }
         }
       }
 
